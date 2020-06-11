@@ -1,0 +1,316 @@
+android 
+消息篇
+
+类似 win定义 wm_xx=wm_user+1111  sendmessage(handle,wm_xx....)
+定义接收
+IntentFilter msgIntentFilter = new IntentFilter();
+		msgIntentFilter.addAction(MsgBroadcast.ACTION_MSG_NUM_UPDATE);
+		msgIntentFilter.addAction(MsgBroadcast.ACTION_MSG_NUM_RESET);
+		registerReceiver(mUpdateUnReadReceiver, msgIntentFilter);
+接收处理
+	private BroadcastReceiver mUpdateUnReadReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (action.equals(MsgBroadcast.ACTION_MSG_NUM_UPDATE)) {
+				int operation = intent.getIntExtra(MsgBroadcast.EXTRA_NUM_OPERATION, MsgBroadcast.NUM_ADD);
+				int count = intent.getIntExtra(MsgBroadcast.EXTRA_NUM_COUNT, 0);
+				mMsgUnReadNum = (operation == MsgBroadcast.NUM_ADD) ? mMsgUnReadNum + count : mMsgUnReadNum - count;
+				updateMsgUnReadTv();
+			} else if (action.equals(MsgBroadcast.ACTION_MSG_NUM_RESET)) {
+				if (isPause) {// 等待恢复的时候更新
+					mMsgNumNeedUpdate = true;
+				} else {// 立即更新
+					initMsgUnReadTips(g_global.getInstance().mLoginUser.getUser_id());
+				}
+			}
+		}
+	};
+
+
+
+
+
+发送消息
+	public static void broadcastGroupPanelUiUpdate(Context context) {
+		context.sendBroadcast(new Intent(ACTION_group_panel_UI_UPDATE));
+	}
+
+	public static void broadcastMsgNumReset(Context context) {
+		context.sendBroadcast(new Intent(ACTION_MSG_NUM_RESET));
+	}
+
+
+	public static void broadcastMsgNumUpdate(Context context, boolean add, int count) {
+		Intent intent = new Intent(ACTION_MSG_NUM_UPDATE);
+		intent.putExtra(EXTRA_NUM_COUNT, count);
+		if (add) {
+			intent.putExtra(EXTRA_NUM_OPERATION, NUM_ADD);
+		} else {
+			intent.putExtra(EXTRA_NUM_OPERATION, NUM_REDUCE);
+		}
+		context.sendBroadcast(intent);
+	}
+
+================================================================================================
+定义接口
+public interface state_listener_interface {
+	int login_state_not = 1;
+	int login_state_ing = 2;
+	int login_state_success = 3;
+	void onlogin_state_change(int event);
+}
+类继承接口
+public class MainActivity extends BaseActivity implements state_listener_interface 
+        把class加入监听状态
+	ListenerManager.getInstance().addLoginStateChangeListener(this);
+
+	处理消息
+	@Override
+	public void onlogin_state_change(int event) {
+
+
+接口分发、添加消息类
+private List<state_listener_interface> mNetstateListeners = new ArrayList<state_listener_interface>();
+定义添加消息
+	public void addLoginStateChangeListener(state_listener_interface loginStateChangeListener) {
+		mNetstateListeners.add(loginStateChangeListener);
+	}
+
+
+public void dispatchEvent(final int event) {
+		if (mNetstateListeners.size() <= 0) {
+			return;
+		}
+		mHandler.post(new Runnable() {
+			public void run() {
+				for (state_listener_interface xgo : mNetstateListeners) {
+					xgo.onlogin_state_change(event);
+				}
+			}
+		});
+	}
+
+
+发送消息
+  ListenerManager.getInstance().dispatchEvent(state_listener_interface.login_state_success);
+
+
+、************************************************************************************************
+① UI 线程消息处理
+private Handler handler = new Handler() {
+	public void handleMessage(Message msg) {
+		switch (msg.what) {
+			case 1 :
+				bt.setText("正在下载...");
+				break;
+			case 2 :
+				Bitmap bm = (Bitmap) msg.obj;
+				iv.setImageBitmap(bm);
+				break;
+			case 3 :
+				Bundle bundle = msg.getData();
+				String data = bundle.getString("text");
+				bt.setText(data);
+				break;
+		}
+	}
+};
+
+消息发送代码：
+
+方式一：
+
+示例1：
+
+Message.obtain(handler,1).sendToTarget();
+
+示例2：
+
+Bitmap bm = NetUtil.downloadNewImg();
+
+Message.obtain(handler, 2, bm).sendToTarget();
+
+示例3：
+
+// 这条消息，不携带数据，而是携带一段代码， 主线程处理这条消息时，会执行它携带的代码，而不执行其他代码
+
+Message.obtain(handler, new Runnable() {
+public void run() {
+bt.setText("下载内涵图");
+}
+}).sendToTarget();
+
+ 
+
+方式二：
+
+示例1：
+
+handler.obtainMessage(1).sendToTarget();
+
+示例2：
+
+Bitmap bm = NetUtil.downloadNewImg();
+
+handler.obtainMessage(2, bm).sendToTarget();
+
+ 
+
+方式三：
+
+示例1：
+
+Message msg = new Message();
+msg.what =1;
+handler.sendMessage(msg);
+
+
+
+
+Message msg=new Message();
+ Message msg1=Message.obtain();
+ Message msg2=handler.obtainMessage();
+                
+	msg.what=0;             
+	msg.arg1=1;             
+	msg.arg2=2;           
+	msg.obj="Object类型";
+handler.sendMessage(msg);
+
+推荐
+mHandler
+    .obtainMessage(int what, int arg1, int arg2, Object obj)
+    .sendToTarget();
+
+处理
+Handler handler=new Handler() {
+        
+	@Override
+        
+	public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+ 
+               case 0:
+handler在哪个线程中创建的就与哪个线程绑定
+
+②
+new Thread(new Runnable() {
+
+@Override 
+	public void run() {     
+	/**
+          
+	耗时操作
+        
+	*/
+     
+ handler.post(new Runnable() {         
+	@Override
+         
+ 	public void run() {
+  
+            /**
+ 
+               更新UI
+  
+             */
+   
+       	}
+     
+	});
+
+   }
+ 
+}).start();
+// 创建一个携带代码的消息对象,并发送给主线程执行
+handler.post(new Runnable() {
+public void run() {
+	Toast.makeText(MainActivity.this,"下载结束",Toast.LENGTH_SHORT).show();
+}
+}); 
+
+————————————————
+*************************************************************************************
+json解析
+  String vresult = response.body().string();
+                    JSONObject jsonObject = JSON.parseObject(vresult);
+
+                    String data = Uri.decode(jsonObject.getString(“data”));
+                    JSONArray jsonarr = null;
+                    try {
+                        jsonarr = new JSONArray(data);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    org.json.JSONObject jsonObjectx = null;
+                    try {
+                        jsonObjectx = jsonarr.getJSONObject(0);
+                        String xx= jsonObjectx.getString("room_id");
+****************************************************************
+sqlite数据库篇
+
+	public static String getCreateChatMessageTableSql(String tableName) {
+		String sql = "CREATE TABLE IF NOT EXISTS "
+				+ tableName
+				+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,type INTEGER NOT NULL,timeSend INTEGER NOT NULL,packetId VARCHAR NOT NULL,timeReceive INTEGER,fromUserId VARCHAR,fromUserName VARCHAR,isMySend SMALLINT,content VARCHAR,filePath VARCHAR,location_y VARCHAR,location_x VARCHAR,isRead SMALLINT,isUpload SMALLINT,isDownload SMALLINT,messageState INTEGER,timeLen INTEGER , fileSize INTEGER,objectId VARCHAR,sipStatus INTEGER,sipDuration INTEGER)";
+		return sql;
+	}
+
+public static List<String> getUserChatMessageTables(SQLiteDatabase db, String ownerId) {
+		String tablePrefix = CHAT_MESSAGE_TABLE_PREFIX + ownerId;
+		Cursor cursor = null;
+		try {
+			String sql = "select name from Sqlite_master where type ='table' and name like '" + tablePrefix + "%'";
+			cursor = db.rawQuery(sql, null);
+			if (cursor != null) {
+				List<String> tables = new ArrayList<String>();
+				while (cursor.moveToNext()) {
+					String name = cursor.getString(0);
+					if (!TextUtils.isEmpty(name)) {
+						tables.add(name);
+					}
+				}
+				return tables;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		return null;
+	}
+
+*****************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
