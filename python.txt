@@ -1,0 +1,327 @@
+a=10
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+a*=1+2 等于 30
+
+print(f"-------{v1}----{v2}") 打印的简化写法
+
+a=100
+b="hello world"
+print("%s%s" %(a,b))
+
+print("%05d %s" %(a,b))  00100 helloworld
+
+
+c=10.2
+print("%.3f" %c)  10.200三位小数
+
+数据类型 
+dict
+tuple
+list
+三目运算符
+a=1
+b=2
+c= a-b if a>b else b-a
+
+循环使用 else语句
+#!/usr/bin/python
+ 
+count = 0
+while count < 5:
+   print count, " is  less than 5"
+   count = count + 1
+else:
+   print count, " is not less than 5"
+
+for i in str:
+	print(i)
+else:
+	print('循环正常结束后执行的代码')
+
+
+集合
+basket = {'apple', 'orange', 'apple', 'pear', 'orange', 'banana'}
+a=set() --空集合
+字典
+dict = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+a={}---空字典
+元组
+tup1 = ('Google', 'Runoob', 1997, 2000);
+列表
+list1 = ['Google', 'Runoob', 1997, 2000];
+
+
+推导式
+列表推导式
+[xx for xx in range()]
+字典推导式
+{k,v  for k,v in dic.items() if k.....}
+集合推导式
+{xx for xx in }
+
+
+函数文档书写
+
+def aa(a,b):
+	"""求和函数"""
+	return a+b
+
+help(aa)---------------------------->求和函数
+
+a全局变量 声明
+
+a=100
+def ab():
+    global a
+    a=12
+    
+ab()
+print(a)
+
+关键字参数不定长  包裹关键字传递
+def user_info_a(**kwargs):
+	print(kwargs) ------------->{}  {'name':'tom'} 字典
+
+def user_info(*args):
+	print(kwargs) ------------->（）  （‘是是是’） 元组
+
+user_info_a(name='tom')
+user_info_a(name='tom',age=20)
+
+元组拆包
+def ret_num():  返回元组         返回[] 返回set 
+	return 100,1
+a,b=ret_num()
+
+字典拆包
+dict={'name':'tom','age':90}
+a,b=dict
+print(a) #name
+dict[a] #tom
+
+
+
+如果单独出现星号 * 后的参数必须用关键字传入。
+
+>>> def f(a,b,*,c):
+...     return a+b+c
+... 
+>>> f(1,2,3)   # 报错
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: f() takes 2 positional arguments but 3 were given
+>>> f(1,2,c=3) # 正常
+6
+
+
+加了两个星号 ** 的参数会以字典的形式导入。
+
+实例(Python 3.0+)
+#!/usr/bin/python3
+  
+# 可写函数说明
+def printinfo( arg1, **vardict ):
+   "打印任何传入的参数"
+   print ("输出: ")
+   print (arg1)
+   print (vardict)
+ 
+# 调用printinfo 函数
+printinfo(1, a=2,b=3)
+以上实例输出结果：
+
+输出: 
+1
+{'a': 2, 'b': 3}
+
+
+加了星号 * 的参数会以元组(tuple)的形式导入，存放所有未命名的变量参数。
+
+实例(Python 3.0+)
+#!/usr/bin/python3
+  
+# 可写函数说明
+def printinfo( arg1, *vartuple ):
+   "打印任何传入的参数"
+   print ("输出: ")
+   print (arg1)
+   print (vartuple)
+ 
+# 调用printinfo 函数
+printinfo( 70, 60, 50 )
+以上实例输出结果：
+
+输出: 
+70
+(60, 50)
+
+
+
+
+匿名函数
+python 使用 lambda 来创建匿名函数。
+
+所谓匿名，意即不再使用 def 语句这样标准的形式定义一个函数。
+
+lambda 只是一个表达式，函数体比 def 简单很多。
+lambda的主体是一个表达式，而不是一个代码块。仅仅能在lambda表达式中封装有限的逻辑进去。
+lambda 函数拥有自己的命名空间，且不能访问自己参数列表之外或全局命名空间里的参数。
+虽然lambda函数看起来只能写一行，却不等同于C或C++的内联函数，后者的目的是调用小函数时不占用栈内存从而增加运行效率。
+语法
+lambda 函数的语法只包含一个语句，如下：
+
+lambda [arg1 [,arg2,.....argn]]:expression
+如下实例：
+
+实例(Python 3.0+)
+#!/usr/bin/python3
+ 
+# 可写函数说明
+sum = lambda arg1, arg2: arg1 + arg2
+ 
+# 调用sum函数
+print ("相加后的值为 : ", sum( 10, 20 ))
+print ("相加后的值为 : ", sum( 20, 20 ))
+以上实例输出结果：
+
+相加后的值为 :  30
+相加后的值为 :  40
+
+
+
+将列表当做堆栈使用
+列表方法使得列表可以很方便的作为一个堆栈来使用，堆栈作为特定的数据结构，最先进入的元素最后一个被释放（后进先出）。用 append() 方法可以把一个元素添加到堆栈顶。用不指定索引的 pop() 方法可以把一个元素从堆栈顶释放出来。例如：
+
+实例
+>>> stack = [3, 4, 5]
+>>> stack.append(6)
+>>> stack.append(7)
+>>> stack
+[3, 4, 5, 6, 7]
+>>> stack.pop()
+7
+>>> stack
+[3, 4, 5, 6]
+>>> stack.pop()
+6
+>>> stack.pop()
+5
+>>> stack
+[3, 4]
+将列表当作队列使用
+也可以把列表当做队列用，只是在队列里第一加入的元素，第一个取出来；但是拿列表用作这样的目的效率不高。在列表的最后添加或者弹出元素速度快，然而在列表里插入或者从头部弹出速度却不快（因为所有其他的元素都得一个一个地移动）。
+
+实例
+>>> from collections import deque
+>>> queue = deque(["Eric", "John", "Michael"])
+>>> queue.append("Terry")           # Terry arrives
+>>> queue.append("Graham")          # Graham arrives
+>>> queue.popleft()                 # The first to arrive now leaves
+'Eric'
+>>> queue.popleft()                 # The second to arrive now leaves
+'John'
+>>> queue                           # Remaining queue in order of arrival
+deque(['Michael', 'Terry', 'Graham'])
+
+
+构造函数 dict() 直接从键值对元组列表中构建字典。如果有固定的模式，列表推导式指定特定的键值对：
+
+>>> dict([('sape', 4139), ('guido', 4127), ('jack', 4098)])
+{'sape': 4139, 'jack': 4098, 'guido': 4127}
+此外，字典推导可以用来创建任意键和值的表达式词典：
+
+>>> {x: x**2 for x in (2, 4, 6)}
+{2: 4, 4: 16, 6: 36}
+如果关键字只是简单的字符串，使用关键字参数指定键值对有时候更方便：
+
+>>> dict(sape=4139, guido=4127, jack=4098)
+{'sape': 4139, 'jack': 4098, 'guido': 4127}
+
+
+
+在序列中遍历时，索引位置和对应值可以使用 enumerate() 函数同时得到：
+
+>>> for i, v in enumerate(['tic', 'tac', 'toe']):
+...     print(i, v)
+...
+0 tic
+1 tac
+2 toe
+
+
+同时遍历两个或更多的序列，可以使用 zip() 组合：
+
+>>> questions = ['name', 'quest', 'favorite color']
+>>> answers = ['lancelot', 'the holy grail', 'blue']
+>>> for q, a in zip(questions, answers):
+...     print('What is your {0}?  It is {1}.'.format(q, a))
+...
+What is your name?  It is lancelot.
+What is your quest?  It is the holy grail.
+What is your favorite color?  It is blue.
+要反向遍历一个序列，首先指定这个序列，然后调用 reversed() 函数：
+
+>>> for i in reversed(range(1, 10, 2)):
+...     print(i)
+...
+9
+7
+5
+3
+1
+要按顺序遍历一个序列，使用 sorted() 函数返回一个已排序的序列，并不修改原值：
+
+>>> basket = ['apple', 'orange', 'apple', 'pear', 'orange', 'banana']
+>>> for f in sorted(set(basket)):
+...     print(f)
+...
+apple
+banana
+orange
+pear
+
+
+str.format() 的基本使用如下:
+
+>>> print('{}网址： "{}!"'.format('菜鸟教程', 'www.runoob.com'))
+菜鸟教程网址： "www.runoob.com!"
+
+
+
+如果在 format() 中使用了关键字参数, 那么它们的值会指向使用该名字的参数。
+
+>>> print('{name}网址： {site}'.format(name='菜鸟教程', site='www.runoob.com'))
+菜鸟教程网址： www.runoob.com
+位置及关键字参数可以任意的结合:
+
+>>> print('站点列表 {0}, {1}, 和 {other}。'.format('Google', 'Runoob', other='Taobao'))
+站点列表 Google, Runoob, 和 Taobao。
+!a (使用 ascii()), !s (使用 str()) 和 !r (使用 repr()) 可以用于在格式化某个值之前对其进行转化:
+
+>>> import math
+>>> print('常量 PI 的值近似为： {}。'.format(math.pi))
+常量 PI 的值近似为： 3.141592653589793。
+>>> print('常量 PI 的值近似为： {!r}。'.format(math.pi))
+常量 PI 的值近似为： 3.141592653589793。
+在 : 后传入一个整数, 可以保证该域至少有这么多的宽度。 用于美化表格时很有用。
+>>> table = {'Google': 1, 'Runoob': 2, 'Taobao': 3}
+>>> for name, number in table.items():
+...     print('{0:10} ==> {1:10d}'.format(name, number))
+...
+Google     ==>          1
+Runoob     ==>          2
+Taobao     ==>          3
+如果你有一个很长的格式化字符串, 而你不想将它们分开, 那么在格式化时通过变量名而非位置会是很好的事情。
+
+最简单的就是传入一个字典, 然后使用方括号 [] 来访问键值 :
+
+>>> table = {'Google': 1, 'Runoob': 2, 'Taobao': 3}
+>>> print('Runoob: {0[Runoob]:d}; Google: {0[Google]:d}; Taobao: {0[Taobao]:d}'.format(table))
+Runoob: 2; Google: 1; Taobao: 3
+也可以通过在 table 变量前使用 ** 来实现相同的功能：
+
+>>> table = {'Google': 1, 'Runoob': 2, 'Taobao': 3}
+>>> print('Runoob: {Runoob:d}; Google: {Google:d}; Taobao: {Taobao:d}'.format(**table))
+Runoob: 2; Google: 1; Taobao: 3
