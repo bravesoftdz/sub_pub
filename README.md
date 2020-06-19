@@ -1,4 +1,1 @@
-"# sub_pub" 
-发布订阅例子
-
-im对话数据存储例子
+record struct {}  begin end ->
