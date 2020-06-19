@@ -1,0 +1,14 @@
+// 删除jar
+task clearJar(type: Delete) {
+    delete 'build/outputs/xxxx.jar'
+}
+//定义makeJar任务打包jar包 start
+task makeJar(type: Copy){
+    delete 'build/libs/xxxx.jar'//先删除存在的jar包
+    from('build/intermediates/aar_main_jar/release/')//
+    into('build/libs/')//打包后生成的jar包的存放目录
+    include('classes.jar')//include、exclude参数过滤，这里只关注classes.jar
+    rename ('classes.jar', 'xxxx.jar')
+}
+//定义makeJar任务打包jar包 end
+makeJar.dependsOn(build)
