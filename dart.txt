@@ -1,0 +1,274 @@
+一、异步
+1、Future
+Future与JavaScript中的Promise非常相似，一个异步操作的最终完成或失败及其结果值（一个Future只会对应一个结果，要么成功，要么失败）。
+
+（1）Future.then
+
+Future.deleyed()进行延迟2秒后打印data：
+
+Future.delayed(new Duration(seconds: 2),(){
+   return "hi world!";
+}).then((data){
+   print(data);
+});
+（2）Future.catchError
+
+如果异步任务发生错误，在catchError中捕获错误：
+
+Future.delayed(new Duration(seconds: 2),(){
+   throw AssertionError("Error");  
+}).then((data){
+   //成功
+   print("success");
+}).catchError((e){
+   //失败
+   print(e);
+});
+then方法还有一个可选参数onError，我们也可以它来捕获异常：
+
+Future.delayed(new Duration(seconds: 2), () {
+    throw AssertionError("Error");
+}).then((data) {
+    print("success");
+}, onError: (e) {
+    print(e);
+});
+（3）Future.whenComplete
+
+有时网络请求前需要弹加载框，请求结束使用Future的whenComplete回调进行关闭：
+
+Future.delayed(new Duration(seconds: 2),(){
+   throw AssertionError("Error");
+}).then((data){
+   //成功 
+   print(data);
+}).catchError((e){
+   //失败
+   print(e);
+}).whenComplete((){
+   //请求结束
+});
+（4）Future.wait
+
+有些时候需要从多个网络接口获取数据，获取成功后将进行特定的处理后再显示到UI界面上。此时应该使用Future.wait，在Future数组中执行所有Future对象都成功后，才会触发then的成功回调，只要有一个Future执行失败，就会触发catchError错误回调。代码如下：
+
+Future.wait([
+
+  Future.delayed(new Duration(seconds: 2), () {
+    return "hello";
+  }),
+
+  Future.delayed(new Duration(seconds: 4), () {
+    return " world";
+  })
+]).then((results){
+  print(results[0]+results[1]);//4秒后显示 hello world
+}).catchError((e){
+  print(e);
+});
+2、Async/await
+Dart中的async/await?0?2和JavaScript中的async/await功能和用法是一模一样的。
+
+回调地狱(Callback Hell)：如果出现大量异步任务依赖其它异步任务的结果时，必然会出现Future.then回调中套回调情况。比如，用户先登录，登录成功后会获得用户ID，通过用户ID，请求用户信息，获取到用户个人信息后，保存在本地。
+
+//先分别定义各个异步任务
+Future<String> login(String userName, String pwd){
+    ...
+    //用户登录
+};
+Future<String> getUserInfo(String id){
+    ...
+    //获取用户信息 
+};
+Future saveUserInfo(String userInfo){
+    ...
+    // 保存用户信息 
+};
+
+login("1","1").then((id){
+ //登录成功后通过，id获取用户信息    
+ getUserInfo(id).then((userInfo){
+    //获取用户信息后保存 
+    saveUserInfo(userInfo).then((){
+       //保存用户信息，接下来执行其它操作
+    });
+  });
+})
+这种在回调里面套回调会导致的代码可读性下降以及出错率提高，并且非常难维护，这个问题被形象的称为回调地狱（Callback Hell）。回调地狱问题在之前JavaScript中非常突出，也是JavaScript被吐槽最多的点，但随着ECMAScript6和ECMAScript7标准发布后，这个问题得到了非常好的解决，而解决回调地狱的两大神器正是ECMAScript6引入了Promise，以及ECMAScript7中引入的async/await。 而在Dart中几乎是完全平移了JavaScript中的这两者：Future相当于Promise，而async/await连名字都没改。
+
+（1）使用Future消除Callback Hell
+
+login("alice","******").then((id){
+
+    return getUserInfo(id);
+
+}).then((userInfo){
+
+    return saveUserInfo(userInfo);
+
+}).then((e){
+   
+}).catchError((e){
+  print(e);
+});
+Future?0?2的所有API的返回值仍然是一个Future对象，所以可以进行链式调用?0?2。
+
+（2）使用async/await消除callback hell
+
+通过Future回调中再返回Future的方式虽然能避免层层嵌套，但是还是有一层回调。使用async/await能够让我们可以像写同步代码那样来执行异步任务而不使用回调的方式。
+
+task() async {
+   try{
+    String id = await login("alice","******");
+    String userInfo = await getUserInfo(id);
+    await saveUserInfo(userInfo);
+    //执行接下来的操作   
+   } catch(e){
+    //错误处理   
+    print(e);   
+   }  
+}
+async ：表示函数是异步，定义的函数返回一个Future对象，可以使用then方法添加回调函数。
+await?0?2 ：表示等待该异步任务完成；await必须出现在?0?2async?0?2函数内部。
+其实，无论是在JavaScript还是Dart中，async/await都只是一个语法糖，编译器或解释器最终都会将其转化为一个Promise（Future）的调用链。
+
+?0?2
+
+3、Stream
+Stream?0?2也是用于接收异步事件数据，和?0?2Future.wait?0?2不同的是，它可以接收多个异步操作的结果。 也就是说，在执行异步任务时，可以通过多次触发成功或失败事件来传递结果数据或错误异常。?0?2Stream?0?2常用于会多次读取数据的异步任务场景，如网络内容下载、文件读写等。举个例子：
+
+Stream.fromFutures([
+  // 1秒后返回结果
+  Future.delayed(new Duration(seconds: 1), () {
+    return "hello 1";
+  }),
+  // 抛出一个异常
+  Future.delayed(new Duration(seconds: 2),(){
+    throw AssertionError("Error");
+  }),
+  // 3秒后返回结果
+  Future.delayed(new Duration(seconds: 3), () {
+    return "hello 3";
+  })
+]).listen((data){
+   print(data);
+}, onError: (e){
+   print(e.message);
+},onDone: (){
+
+});
+二、变量声明
+1、var
+它可以接收任何类型的变量，但最大的不同是Dart中var变量一旦赋值，不能再改变其类型，如：
+
+var t;
+t = "hi world";
+// 下面代码在dart中会报错，因为变量t的类型已经确定为String，
+t = 1000;
+2、final和const
+常量声明用?0?2final?0?2或?0?2const 修饰符。常量只能赋值置一次。两者区别在于：const?0?2变量是一个编译时常量，final变量在第一次使用时被初始化。被final或者const修饰的变量，变量类型可以省略，如：
+
+//可以省略String这个类型声明
+final str = "hi world";
+//final String str = "hi world"; 
+const str1 = "hi world";
+//const String str1 = "hi world";
+3、dynamic和Object
+Object?0?2是Dart所有对象的根基类，也就是说所有类型都是Object的子类(包括Function和Null)，所以任何类型的数据都可以赋值给Object声明的对象。?0?2dynamic与var一样都是关键词，声明的变量可以赋值任意对象。 而dynamic与Object相同之处在于,他们声明的变量可以在后期改变赋值类型。
+
+ dynamic t;
+ Object x;
+ t = "hi world";
+ x = 'Hello Object';
+ //下面代码没有问题
+ t = 1000;
+ x = 1000;
+dynamic与Object不同的是，dynamic声明的对象编译器会提供所有可能的组合, 而Object声明的对象只能使用Object的属性与方法,，否则编译器会报错。如:
+
+ dynamic a;
+ Object b;
+ main() {
+     a = "";
+     b = "";
+     printLengths();
+ }   
+
+ printLengths() {
+     // no warning
+     print(a.length);
+
+     // warning:The getter 'length' is not defined for the class 'Object'
+     print(b.length);
+ }
+?0?2
+
+三、函数
+Dart是一种真正的面向对象的语言，所以即使是函数也是对象，并且有一个类型Function。也就是说函数可以赋值给变量或作为参数传递给其他函数。
+
+1、带返回值函数声明
+bool isNoble(int atomicNumber) {
+  return _nobleGases[atomicNumber] != null;
+}
+如果不指定返回值类型会默认当做dynamic类型处理，注意，函数返回值没有类型推断：
+
+typedef bool CALLBACK();
+
+//不指定返回类型，此时默认为dynamic，不是bool
+isNoble(int atomicNumber) {
+  return _nobleGases[atomicNumber] != null;
+}
+
+void test(CALLBACK cb){
+   print(cb()); 
+}
+//报错，isNoble不是bool类型
+test(isNoble);
+对于只包含一个表达式的函数，可以使用简写语法
+
+bool isNoble (int atomicNumber)=> _nobleGases [ atomicNumber ] ！= null ;
+2、函数作为变量
+var say = (str){
+  print(str);
+};
+say("hi world");
+3、函数作为参数
+void execute(var callback) {
+    callback();
+}
+execute(() => print("xxx"))
+可选的位置参数
+
+包装一组函数参数，用[]标记为可选的位置参数：
+
+String say(String from, String msg, [String device]) {
+  var result = '$from says $msg';
+  if (device != null) {
+    result = '$result with a $device';
+  }
+  return result;
+}
+下面是一个不带可选参数调用这个函数的例子：
+
+say('Bob', 'Howdy'); //结果是： Bob says Howdy
+下面是用第三个参数调用这个函数的例子：
+
+say('Bob', 'Howdy', 'smoke signal'); //结果是：Bob says Howdy with a smoke signal
+可选的命名参数
+
+定义函数时，使用{param1, param2, …}，用于指定命名参数。例如：
+
+//设置[bold]和[hidden]标志
+void enableFlags({bool bold, bool hidden}) {
+    // ... 
+}
+调用函数时，可以使用指定命名参数。例如：paramName: value
+
+enableFlags(bold: true, hidden: false);
+可选命名参数在Flutter中使用非常多。
+
+结束。谢谢！
+
+参考?0?2https://book.flutterchina.club/chapter1/dart.html
+
+?0?2
+
