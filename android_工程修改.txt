@@ -1,7 +1,8 @@
-¹Ø±ÕAndroid Studio 4.0
-ĞŞ¸ÄprojectËùÔÚÂ·¾¶µÄÎÄ¼ş¼ĞÃû×ÖÎª[NewName]
-ĞŞ¸Äsettings.gradle
+å…³é—­Android Studio 4.0
+ä¿®æ”¹projectæ‰€åœ¨è·¯å¾„çš„æ–‡ä»¶å¤¹åå­—ä¸º[NewName]
+ä¿®æ”¹settings.gradle
 
-´ò¿ªAndroid Stuido£¬importĞÂµÄ[NewName]Â·¾¶¹¤³Ì
-ĞŞ¸Ä¸ùÄ¿Â¼ÏÂµÄ.imlÎÄ¼şÃûÎª[NewName].iml£¬¼°¸ÃÎÄ¼şÖĞµÄexternal.linked.project.id=[NewName]
-ĞŞ¸Ä.idea/modules.xmlÀïÃæµÄ
+æ‰“å¼€Android Stuidoï¼Œimportæ–°çš„[NewName]è·¯å¾„å·¥ç¨‹
+ä¿®æ”¹æ ¹ç›®å½•ä¸‹çš„.imlæ–‡ä»¶åä¸º[NewName].imlï¼ŒåŠè¯¥æ–‡ä»¶ä¸­çš„external.linked.project.id=[NewName]
+ä¿®æ”¹.idea/modules.xmlé‡Œé¢çš„
+ä¿®æ”¹build.gradle applicationID
