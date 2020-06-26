@@ -1,0 +1,7 @@
+关闭Android Studio 4.0
+修改project所在路径的文件夹名字为[NewName]
+修改settings.gradle
+
+打开Android Stuido，import新的[NewName]路径工程
+修改根目录下的.iml文件名为[NewName].iml，及该文件中的external.linked.project.id=[NewName]
+修改.idea/modules.xml里面的
