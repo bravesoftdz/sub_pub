@@ -1,0 +1,60 @@
+ function StringToWideStringCP(const S: RawByteString; CP: Integer): UnicodeString;
+var
+    P: PAnsiChar;
+    pw: PWideChar;
+    I, J: Integer;
+begin
+    Result := '';
+    if S = '' then
+    Exit;
+    if CP = CP_UTF8 then
+    begin
+    // UTF8
+    Result := UTF8ToUnicodeString(S);
+    Exit;
+    end;
+    P := @S[1];
+    I := MultiByteToWideChar(CP, 0, P, Length(S), nil, 0);
+    if I <= 0 then
+    Exit;
+    SetLength(Result, I);
+    pw := @Result[1];
+    J := MultiByteToWideChar(CP, 0, P, Length(S), pw, I);
+    if I <> J then
+    SetLength(Result, Min(I, J));
+end;
+
+
+function WideStringToStringCP(const w: UnicodeString; CP: Integer) 
+    : RawByteString; 
+var 
+    P: PWideChar; 
+    I, J: Integer; 
+begin 
+    Result := ''; 
+    if w = '' then 
+    Exit; 
+    case CP of 
+    CP_UTF8: 
+     begin 
+     // UTF8 
+     Result := UTF8Encode(w); 
+     Exit; 
+     end; 
+    CP_UNICODE_LE: 
+     begin 
+     // Unicode codepage 
+     CP := CP_ACP; 
+     end; 
+    end; 
+
+    P := @w[1]; 
+    I := WideCharToMultibyte(CP, 0, P, Length(w), nil, 0, nil, nil); 
+    if I <= 0 then 
+    Exit; 
+    SetLength(Result, I); 
+    J := WideCharToMultibyte(CP, 0, P, Length(w), @Result[1], I, nil, nil); 
+    if I <> J then 
+    SetLength(Result, Min(I, J)); 
+    SetCodePage(Result, CP, False); 
+end; 
